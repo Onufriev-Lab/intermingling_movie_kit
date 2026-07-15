@@ -1,0 +1,28 @@
+# view_interactive.vmd — open the intermingling wiremesh look in the VMD GUI.
+# First run  ./preview_frame.sh  (it writes work/preview_dx/f0000/*.dx), then:
+#     vmd -e view_interactive.vmd
+# Colours here are the 6-arm defaults; edit if your ARM_COLORS_RGB differ.
+set d work/preview_dx/f0000
+set iso 2.0
+color change rgb 1  1.0 0.0 0.0     ;# arm 0
+color change rgb 2  1.0 0.5 0.0     ;# arm 1
+color change rgb 3  0.95 0.85 0.0   ;# arm 2
+color change rgb 4  0.0 0.8 0.0     ;# arm 3
+color change rgb 5  0.0 0.8 0.85    ;# arm 4
+color change rgb 6  0.15 0.2 1.0    ;# arm 5
+color change rgb 16 0.0 0.0 0.0     ;# >=2 overlap
+color Display Background white
+axes location off
+display projection Orthographic
+display ambientocclusion on
+mol new $d/arm0.dx type dx waitfor all
+foreach k {1 2 3 4 5} { mol addfile $d/arm$k.dx type dx waitfor all }
+mol addfile $d/shared.dx type dx waitfor all
+mol delrep 0 top
+for {set k 0} {$k < 6} {incr k} {
+  mol representation Isosurface $iso $k 0 1 2 1
+  mol color ColorID [expr {$k+1}]; mol selection {all}; mol material Opaque; mol addrep top
+}
+mol representation Isosurface $iso 6 0 0 1 1
+mol color ColorID 16; mol material AOShiny; mol addrep top
+display resetview
